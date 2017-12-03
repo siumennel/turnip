@@ -1,0 +1,101 @@
+{
+    "name": "turnip",
+    "description": "turnip ruby support",
+    "author": "Jason Yang",
+    "license": "MIT",
+    "version": "0.1.0",
+    "publisher": "siumennel",
+    "engines": {
+        "vscode": "^1.4.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage:feature"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "feature",
+                "aliases": [
+                    "feature",
+                    "gherkin",
+                    "Gherkin",
+                    "turnip",
+                    "ruby"
+                ],
+                "extensions": [
+                    ".feature"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "feature",
+                "scopeName": "text.gherkin.feature",
+                "path": "./syntaxes/feature.tmLanguage"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "feature",
+                "path": "snippets.json"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Turnip configuration",
+            "properties": {
+                "turnip.trace.server": {
+                    "scope": "window",
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "off",
+                    "description": "Traces the communication between VSCode and the language server."
+                },
+                "turnip.steps": {
+                    "description": "Path to the steps files",
+                    "type": [
+                        "array",
+                        "string"
+                    ],
+                    "default": "**/*_steps.rb",
+                    "required": false
+                },
+                "turnip.pages": {
+                    "description": "Object, which consists of 'page name' => 'page object file path' pairs",
+                    "type": [
+                        "object"
+                    ],
+                    "required": false
+                },
+                "turnip.syncfeatures": {
+                    "description": "Will get steps using count from glob-style path or from '**/*.feature' if true",
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "required": false,
+                    "default": "true"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -p ./",
+        "watch": "tsc -w -p ./",
+        "update-vscode": "node ./node_modules/vscode/bin/install",
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^2.6.3"
+    }
+}
