@@ -37,11 +37,17 @@ export type StepsCountHash = {
 };
 
 export default class StepsHandler {
-
+    /**
+     * all steps
+     */
     elements: Step[];
-
+    /**
+     * if the step already in elements array, it is true;
+     */
     elementsHash: { [step: string]: boolean } = {};
-
+    /**
+     * how many times the step has been used by user's auto completion
+     */
     elemenstCountHash: StepsCountHash = {};
 
     constructor(root: string, stepsPathes: StepSettings, sync: boolean | string) {
@@ -56,7 +62,10 @@ export default class StepsHandler {
     getElements(): Step[] {
         return this.elements;
     }
-
+    /**
+     * 
+     * @param path 
+     */
     setElementsHash(path: string): void {
         this.elemenstCountHash = {};
         let files = glob.sync(path, { ignore: '.gitignore' });
@@ -72,9 +81,14 @@ export default class StepsHandler {
                 }
             });
         });
+        //update the step's count to the newest used times.
         this.elements.forEach(el => el.count = this.getElementCount(el.id));
     }
-
+    
+    /**
+     * mark the step been used. when it is been used, plus 1. 
+     * @param id
+     */
     incrementElementCount(id: string): void {
         if (this.elemenstCountHash[id]) {
             this.elemenstCountHash[id]++;
@@ -82,55 +96,46 @@ export default class StepsHandler {
             this.elemenstCountHash[id] = 1;
         }
     }
-
+    
     getElementCount(id: string): number {
         return this.elemenstCountHash[id] || 0;
     }
 
+    /**
+     * get step definition regExp 
+     */
     getStepRegExp(): RegExp {
-
-        //Actually, we dont care what the symbols are before our 'Gherkin' word
-        //But they shouldn't end with letter
-        let startPart = '^((?:[^\'"\/]*?[^\\w])|.{0})';
-
-        //All the steps should be declared using any gherkin keyword. We should get first 'gherkin' word
-        let gherkinPart = '(Given|When|Then|And|But|defineStep)';
-
-        //All the symbols, except of symbols, using as step start and letters, could be between gherkin word and our step
-        let nonStepStartSymbols = `[^\/'"\\w]*?`;
-
-        //Step text could be placed between '/' symbols (ex. in JS) or between quotes, like in Java
-        let stepStart = `(\/|'|")`;
-
-        //Our step could contain any symbols, except of our 'stepStart'. Use \3 to be sure in this
-        let stepBody = '([^\\3]+)';
-
-        //Step should be ended with same symbol it begins
-        let stepEnd = '\\3';
-
-        //Our RegExp will be case-insensitive to support cases like TypeScript (...@when...)
-        let r = new RegExp(startPart + gherkinPart + nonStepStartSymbols + stepStart + stepBody + stepEnd, 'i');
-
-        // /^((?:[^'"\/]*?[^\w])|.{0})(Given|When|Then|And|But)?[^\/'"\w]*?(\/|'|")([^\3]+)\3/i
+        //  step ":user で伝言を開く" do |user|
+        let r = new RegExp('^(\\s*?)step(\\s+)"([^"]+?)"(\\s+)do([\\s\\S]*)$');
+        //group[3]= :user で伝言を開く
         return r;
-
     }
-
+    
+    /**
+     * if line is a step sentence return its regExp match result.
+     * @param line
+     */
     getMatch(line: string): RegExpMatchArray {
         return line.match(this.getStepRegExp());
     }
-
+    /**
+     * translate turnip step format to regexp format.
+     * it is used to go to definition.
+     */
     getRegTextForStep(step: string): string {
 
         //Ruby interpolation (like `#{Something}` ) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
-        step = step.replace(/#{(.*?)}/g, '.*');
+        //step = step.replace(/#{(.*?)}/g, '.*');
+        step = step.replace(/(:\w+)/g, '.*');
+        step = step.replace('(', '\(');
+        step = step.replace(')', '\)');
 
         //Built in transforms
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
-        step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
-        step = step.replace(/{int}/g, '-?\\d+');
-        step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
+        //step = step.replace(/{float}/g, '-?\\d*\\.?\\d+');
+        //step = step.replace(/{int}/g, '-?\\d+');
+        //step = step.replace(/{stringInDoubleQuotes}/g, '"[^"]+"');
 
         //Handle Cucumber Expressions (like `{Something}`) should be replaced with `.*`
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/99
@@ -144,6 +149,10 @@ export default class StepsHandler {
         return step;
     }
 
+    /**
+     * get Text For Step
+     * @param step
+     */
     getTextForStep(step: string): string {
 
         //Remove all the backslashes
@@ -159,6 +168,9 @@ export default class StepsHandler {
         return step;
     }
 
+    /**
+     * get Desc string for the step
+     */
     getDescForStep(step: string): string {
 
         //Remove 'Function body' part
@@ -170,6 +182,9 @@ export default class StepsHandler {
         return step;
     }
 
+    /**
+     * Handle regexp's like 'I do (one|to|three)'
+     */
     getStepTextInvariants(step: string): string[] {
         //Handle regexp's like 'I do (one|to|three)'
         if (~step.search(/(\([^\)^\()]+\|[^\(^\)]+\))/)) {
@@ -183,7 +198,12 @@ export default class StepsHandler {
             return [step];
         }
     }
-
+/**
+ * create a step object from step line
+ * @param fullStepLine 
+ * @param stepPart 
+ * @param def 
+ */
     getSteps(fullStepLine: string, stepPart: string, def: Location): Step[] {
         const stepsVariants = this.getStepTextInvariants(stepPart);
         const desc = this.getDescForStep(fullStepLine);
@@ -196,13 +216,18 @@ export default class StepsHandler {
         });
     }
 
+    /**
+     * get all steps from the ruby file
+     * @param filePath 
+     */
     getFileSteps(filePath: string): Step[] {
         let definitionFile = getFileContent(filePath);
         definitionFile = clearComments(definitionFile);
         return definitionFile.split(/\r?\n/g).reduce((steps, line, lineIndex) => {
             let match = this.getMatch(line);
             if (match) {
-                let [, beforeGherkin, , , stepPart] = match;
+                //let [, beforeGherkin, , , stepPart] = match;
+                let [, beforeGherkin, ,stepPart] = match;
                 let pos = Position.create(lineIndex, beforeGherkin.length);
                 let def = Location.create(getOSPath(filePath), Range.create(pos, pos));
                 steps = steps.concat(this.getSteps(line, stepPart, def));
@@ -221,13 +246,17 @@ export default class StepsHandler {
                     severity: DiagnosticSeverity.Warning,
                     range: range,
                     message: `No steps files found`,
-                    source: 'cucumberautocomplete'
+                    source: 'turnip'
                 });
             }
             return res;
         }, []);
     }
-
+    /**
+     * restore all steps from ruby files to elementsHash and elements
+     * @param root  
+     * @param stepsPathes 
+     */
     populate(root: string, stepsPathes: StepSettings): void {
         this.elementsHash = {};
         this.elements = stepsPathes
@@ -245,11 +274,25 @@ export default class StepsHandler {
 
     gherkinWords = 'Given|When|Then|And|But';
     gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(\\s+)(.*)');
-
+    
+    /**
+     * see if the given sentence has a defined step in ruby file.
+     * for example:
+     * Given I have a dream
+     * step in ruby is: I have :something
+     * so step's regexp is: I have .*
+     * so it does matched and we return the step in the elements array.
+     * @param text
+     */
     getStepByText(text: string): Step {
         return this.elements.find(s => s.reg.test(text));
     }
-
+    /**
+     * see if the gerkin sentence has a defined step in ruby file.
+     * if not, give user a hint message.
+     * @param line
+     * @param lineNum 
+     */
     validate(line: string, lineNum: number): Diagnostic | null {
         line = line.replace(/\s*$/, '');
         let lineForError = line.replace(/^\s*/, '');
@@ -269,18 +312,21 @@ export default class StepsHandler {
                     end: { line: lineNum, character: line.length }
                 },
                 message: `Was unable to find step for "${lineForError}"`,
-                source: 'cucumberautocomplete'
+                source: 'turnip'
             };
         }
     }
-
+    
+    /**
+     * find the matched step in ruby file.
+     * @param line 
+     * @param char 
+     */
     getDefinition(line: string, char: number): Definition | null {
         let match = line.match(this.gherkinRegEx);
         
         if(char ){
-
         }
-
 
         if (!match) {
             return null;
@@ -288,7 +334,12 @@ export default class StepsHandler {
         let step = this.getStepByText(match[4]);
         return step ? step.def : null;
     }
-
+    
+    /**
+     * list all steps that helps user to complete the sentence.
+     * @param line 
+     * @param position 
+     */
     getCompletion(line: string, position: Position): CompletionItem[] | null {
         //Get line part without gherkin part
         let match = line.match(this.gherkinRegEx);
@@ -297,24 +348,42 @@ export default class StepsHandler {
         }
 
         if(position){
-            console.log(position.character);
         }
 
-
         let stepPart = match[4];
-        //Return all the braces into default state
-        stepPart = stepPart.replace(/"[^"]*"/g, '""');
-        //We should not obtain last word
-        stepPart = stepPart.replace(/[^\s]+$/, '');
-        //We should replace/search only string beginning
-        let stepPartRe = new RegExp('^' + stepPart);
+        
+        //first of all, let's see how many words have been typed by user.
+        let searchWords = stepPart.split(' ');
         let res = this.elements
-            .filter(el => el.text.search(stepPartRe) !== -1)
+            .filter(el => {
+                //all the key words should be searched.
+                if (!searchWords || searchWords.length == 0 ){
+                   return false;
+                }
+
+                if (searchWords.length == 1 && searchWords[0] == "" ){
+                    return false;
+                }
+
+                let cnt = 0;
+                for (let index = 0; index < searchWords.length; index++) {
+                    const keyword = searchWords[index].trim();
+                    if (el.text.search(keyword) !== -1){
+                        cnt++;
+                    }
+                }
+                if (cnt == searchWords.length ){
+                  return true;
+                }
+
+                return false;
+                 
+                })
             .map(step => {
-                let label = step.text.replace(stepPartRe, '');
+                let label = step.text;
                 return {
                     label: label,
-                    kind: CompletionItemKind.Function,
+                    kind: CompletionItemKind.Keyword,
                     data: step.id,
                     sortText: getSortPrefix(step.count, 5) + '_' + label
                 };

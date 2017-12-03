@@ -6,7 +6,10 @@ import { Range } from 'vscode-languageserver';
 //import * as md5 from 'md5';
 const md5 = require('md5');
 
-
+/**
+ * get file path with prefix file://XXX
+ * @param path
+ */
 export function getOSPath(path: string): string {
     /* Add suffics for the provided path
      * 'file://' for the non-windows OS's or file:/// for Windows */
@@ -17,6 +20,10 @@ export function getOSPath(path: string): string {
     }
 }
 
+/**
+ * getFileContent in uft8
+ * @param filePath 
+ */
 export function getFileContent(filePath: string): string {
     try {
         return fs.readFileSync(filePath, 'utf8');
