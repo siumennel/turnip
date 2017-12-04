@@ -351,6 +351,9 @@ export default class StepsHandler {
         }
 
         let stepPart = match[4];
+        //for japanese user, they always type fullwidth space rather than halfwidth space.
+        //so let us change fullwidth space to halfwidth space.
+        stepPart = stepPart.replace('　', ' ');
         
         //first of all, let's see how many words have been typed by user.
         let searchWords = stepPart.split(' ');
