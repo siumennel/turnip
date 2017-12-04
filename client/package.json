@@ -3,8 +3,9 @@
     "description": "turnip ruby support",
     "author": "Jason Yang",
     "license": "MIT",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "publisher": "siumennel",
+    "icon": "turnip.png",
     "repository": {
         "type": "git",
         "url": "https://github.com/siumennel/turnip"
