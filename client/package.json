@@ -71,7 +71,7 @@
                         "array",
                         "string"
                     ],
-                    "default": "**/*_steps.rb",
+                    "default": "spec/**/*_steps.rb",
                     "required": false
                 },
                 "turnip.pages": {
