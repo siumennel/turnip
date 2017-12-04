@@ -63,7 +63,7 @@ export default class StepsHandler {
         return this.elements;
     }
     /**
-     * 
+     * count use times for every steps.
      * @param path 
      */
     setElementsHash(path: string): void {
@@ -128,8 +128,8 @@ export default class StepsHandler {
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/65
         //step = step.replace(/#{(.*?)}/g, '.*');
         step = step.replace(/(:\w+)/g, '.*');
-        step = step.replace('(', '\(');
-        step = step.replace(')', '\)');
+        step = step.replace('(', '\\(');
+        step = step.replace(')', '\\)');
 
         //Built in transforms
         //https://github.com/alexkrechik/VSCucumberAutoComplete/issues/66
