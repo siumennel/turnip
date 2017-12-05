@@ -22,7 +22,7 @@ How to use (| is cursor)
 
 -------------------
 
-1. get completion from step definition. 
+### 1. get completion from step definition. 
 
 Given
 
@@ -38,7 +38,7 @@ ctl+space get a completion list searched by 伝言 and 作成
 
 hint: each key word shoud be seperated by space(both hafwidth and fullwidth is OK )
 
-1. go to definition
+### 2. go to definition
 
 Given "tester でログインする"
 
