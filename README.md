@@ -1,6 +1,6 @@
 # README
 
-## This is the README for the "turnip" 
+## This is the README for the "turnip"
 
 -------------------
 The extension observes all 'feature' documents
@@ -14,39 +14,39 @@ Before use
 
 -------------------
 make sure in setting.json you have the proper configuration
-for example: if you open browsertest folder,
+for example: if you open sample folder,
 "turnip.steps": ["spec/**/*_steps.rb"] 
-makes you can refer all steps in  browsertest/spec/**/*_steps.rb
+makes you can refer all steps in  sample/spec/**/*_steps.rb
 
 How to use (| is cursor)
 
 -------------------
 
-### 1. get completion from step definition. 
+### 1. get completion from step definition
 
 Given
 
 Given |
 
-Given 伝言　|
+Given create　|
 
-ctl+space get a completion list searched by 伝言
+ctl+space get a completion list searched by create
 
-Given 伝言　作成 |
+Given create document |
 
-ctl+space get a completion list searched by 伝言 and 作成
+ctl+space get a completion list searched by create and document
 
 hint: each key word shoud be seperated by space(both hafwidth and fullwidth is OK )
 
 ### 2. go to definition
 
-Given "tester でログインする"
+Given "tester login"
 
 right click and go to definition
 
 then you will see the rb files that has:
 
-step ":user でログインする" do |user|
+step ":user login" do |user|
 
 ...
 
