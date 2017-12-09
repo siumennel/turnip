@@ -238,20 +238,14 @@ connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 	}
 	return item; */
 
-	if (~item.data.indexOf('step')) {
-		return stepsHandler.getCompletionResolve(item);
-	}
-	if (~item.data.indexOf('page')) {
-		return pagesHandler.getCompletionResolve(item);
-	}
-	return item;
-
+	return　stepsHandler.getCompletionResolve(item);
 });
 
 documents.onDidChangeContent((change): void => {
 	let changeText = change.document.getText();
 	//Validate document
 	let diagnostics = validate(changeText);
+	diagnostics.length;
 	connection.sendDiagnostics({ uri: change.document.uri, diagnostics });
 });
 
