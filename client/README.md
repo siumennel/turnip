@@ -40,7 +40,13 @@ hint: each key word shoud be seperated by space(both hafwidth and fullwidth is O
 
 ### 2. go to definition
 
+1)for gerkin file :
+
 Given "tester login"
+
+2)for ruby file :
+
+send "tester login"
 
 right click and go to definition
 
