@@ -26,7 +26,7 @@ export function activate(context: ExtensionContext) {
 	// Options to control the language client
 	let clientOptions: LanguageClientOptions = {
 		// Register the server for plain text documents
-		documentSelector: [{ scheme: 'file', language: 'feature' }],
+		documentSelector: [{ scheme: 'file', language: 'feature' },{ scheme: 'file', language: 'ruby' }],
 		//documentSelector: ['feature'],
 		synchronize: {
 			// Synchronize the setting section 'languageServerExample' to the server

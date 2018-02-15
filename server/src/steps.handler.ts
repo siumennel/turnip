@@ -274,6 +274,12 @@ export default class StepsHandler {
 
     gherkinWords = 'Given|When|Then|And|But';
     gherkinRegEx = new RegExp('^(\\s*)(' + this.gherkinWords + ')(\\s+)(.*)');
+    /**
+     * ruby file's send step sentence
+     * eg: send 'I have :something', 'a dream'
+     */
+    sendWords = 'send';
+    sendRegEx = new RegExp('^(\\s*)(' + this.sendWords + ')(\\s+)"(.*)"(.*)');
     
     /**
      * see if the given sentence has a defined step in ruby file.
@@ -329,7 +335,10 @@ export default class StepsHandler {
         }
 
         if (!match) {
+            match = line.match(this.sendRegEx);
+          if(! match){
             return null;
+          }
         }
         let step = this.getStepByText(match[4]);
         return step ? step.def : null;

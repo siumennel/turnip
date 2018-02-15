@@ -17,7 +17,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onLanguage:feature"
+        "onLanguage:feature",
+        "onLanguage:ruby"
     ],
     "main": "./out/src/extension",
     "contributes": {
