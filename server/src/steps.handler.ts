@@ -360,6 +360,9 @@ export default class StepsHandler {
         }
 
         let stepPart = match[4];
+        let gerkinWord = match[2];
+        let insertPositionIdx = line.indexOf(gerkinWord) + gerkinWord.length+1;
+
         //for japanese user, they always type fullwidth space rather than halfwidth space.
         //so let us change fullwidth space to halfwidth space.
         stepPart = stepPart.replace(/　/g, ' ');
@@ -368,6 +371,11 @@ export default class StepsHandler {
         let searchWords = stepPart.split(' ');
         //remove space from array.
         searchWords = searchWords.filter(word => word !== "");
+　　　　　
+        let filterText = "";
+　　　　　if(searchWords && searchWords.length > 0){
+          filterText =　searchWords[searchWords.length - 1];
+        }
 
         let res = this.elements
             .filter(el => {
@@ -387,6 +395,7 @@ export default class StepsHandler {
                         cnt++;
                     }
                 }
+
                 if (cnt == searchWords.length ){
                   return true;
                 }
@@ -396,18 +405,55 @@ export default class StepsHandler {
                 })
             .map(step => {
                 let label = step.text;
+
+                for (let index = 0; index < searchWords.length; index++) {
+                    if (filterText != "") {
+                        label = label.replace(searchWords[index], " " + searchWords[index]);
+                    }
+                }
+                
+                let theData =　{
+                　  line: position.line,
+                    start: insertPositionIdx,
+                    character: position.character
+                };
+
                 return {
                     label: label,
-                    kind: CompletionItemKind.Keyword,
-                    data: step.id,
-                    sortText: getSortPrefix(step.count, 5) + '_' + label
+                    kind: CompletionItemKind.Method,
+                    //data: step.id,
+                    data: theData,
+                    sortText: getSortPrefix(step.count, 5) + '_' + label,
+                    filterText: label,
+                    insertText: step.text,
+                    //detail: step.text,
+                    documentation: step.text
                 };
             });
+
         return res.length ? res : null;
     }
 
     getCompletionResolve(item: CompletionItem): CompletionItem {
-        this.incrementElementCount(item.data);
+        //this.incrementElementCount(item.data);
+
+           　  //line: position.line,
+                    //start: insertPositionIdx,
+                    //character: position.character
+        item.textEdit = {
+            range: {
+                start: {
+                    line: item.data.line,
+                    character: item.data.start
+                },
+                end: {
+                    line: item.data.line,
+                    character: item.data.character
+                }
+            },
+            newText: item.documentation
+        };
+
         return item;
     };
 
