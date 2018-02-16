@@ -353,7 +353,10 @@ export default class StepsHandler {
         //Get line part without gherkin part
         let match = line.match(this.gherkinRegEx);
         if (!match) {
+　　　　　match = line.match(this.sendRegEx);
+          if(! match){
             return null;
+          }
         }
 
         if(position){
