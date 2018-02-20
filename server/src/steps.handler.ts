@@ -291,7 +291,41 @@ export default class StepsHandler {
      * @param text
      */
     getStepByText(text: string): Step {
-        return this.elements.find(s => s.reg.test(text));
+        let filteredSteps =  this.elements.filter(s => s.reg.test(text));
+        if ( filteredSteps == null  ){
+            return null;
+        } 
+        
+        if ( filteredSteps.length == 0 ){
+            return null;
+        }
+        
+        if ( filteredSteps.length == 1 ){
+            return filteredSteps[0];
+        }
+        
+        //find the most matched step.
+        //for example:
+        //Given I have a dream and a plan 
+        //I have :something and :anotherthing => I have .* and .* 
+        //I have a dream => I have :something => I have .*
+        //the most matched step is I have :something and :anotherthing
+        //let us see the count of .* to find the most matched  step
+        let keywordsCnt = 0;
+        let id = "";
+        filteredSteps.forEach((step) => {
+          let cnt = step.reg.source.split(".*").length - 1;
+          if( cnt > keywordsCnt ){
+            keywordsCnt = cnt;
+            id = step.id;
+          }
+        });
+        
+        if( id != "" ){
+            return filteredSteps.find(s => s.id == id);
+        } else {
+           return filteredSteps[0];
+        }
     }
     /**
      * see if the gerkin sentence has a defined step in ruby file.
