@@ -6,6 +6,12 @@ interface FormatConf {
     indents?: number
 }
 
+interface Block {
+    line: number,
+    block: number,
+    data: string[]
+}
+
 const FORMAT_CONF: FormatConf[] = [
     { text: 'Feature:', type: 'num', indents: 0 },
     { text: 'Scenario:', type: 'num', indents: 1 },
@@ -52,26 +58,19 @@ function correctIndents(text: any, indent: any) {
 }
 
 function formatTables(text: any) {
-    let blocks: {
-        line: number,
-        block: number,
-        data: string[]
-    }[];
-    let maxes: any;
-    //let lines: any;
     let blockNum = 0;
     let textArr = text.split(/\r?\n/g);
 
     //Get blocks with data in cucumber tables
-    blocks = textArr
+    const blocks: Block[] = textArr
         .reduce((res: any, l: any, i: any, arr: any) => {
             if (~l.search(/^\s*\|/)) {
                 res.push({
                     line: i,
                     block: blockNum,
-                    data: l.split(/\s*\|\s*/).filter((i:any, arr:any) => (i > 0) && (i < (arr.length - 1)))
+                    data: l.split(/\s*\|\s*/).filter((v: any, i: any, arr: any) => (i > 0) && (i < (arr.length - 1)))
                 });
-                if (i < arr.length && !~arr[i + 1].search(/^\s*\|/)) {
+                if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
                     blockNum++;
                 }
             }
@@ -79,8 +78,8 @@ function formatTables(text: any) {
         }, []);
 
     //Get max value for each table cell
-    maxes = blocks.reduce((res, b) => {
-        let block = b.block;
+    const maxes = blocks.reduce((res, b) => {
+        const block = b.block;
         if (res[block]) {
             res[block] = res[block].map((v: any, i: any) => Math.max(v, b.data[i].length));
         } else {
