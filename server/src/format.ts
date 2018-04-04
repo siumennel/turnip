@@ -57,6 +57,29 @@ function correctIndents(text: any, indent: any) {
         .join('\r\n');
 }
 
+/**
+ * return the text length by full-width charactor = 2 and half-width charactor = 1 
+ * @param str 
+ */
+function charCount(str: string) {
+    let len = 0;
+    //escape
+    var strE = escape(str);
+    for (let i = 0; i < strE.length; i++ , len++) {
+        //エスケープされた文字なら
+        if (strE.charAt(i) == "%") {
+            //全角なら、通常の＋１の他にもう一度足す
+            if (strE.charAt(++i) == "u") {
+                i += 3;
+                len++;
+            }
+            i++;
+        }
+    }
+    return len;
+}
+
+
 function formatTables(text: any) {
     let blockNum = 0;
     let textArr = text.split(/\r?\n/g);
@@ -81,9 +104,9 @@ function formatTables(text: any) {
     const maxes = blocks.reduce((res, b) => {
         const block = b.block;
         if (res[block]) {
-            res[block] = res[block].map((v: any, i: any) => Math.max(v, b.data[i].length));
+            res[block] = res[block].map((v: any, i: any) => Math.max(v, charCount(b.data[i])));
         } else {
-            res[block] = b.data.map(v => v.length);
+            res[block] = b.data.map(v => charCount(v));
         }
         return res;
     }, []);
@@ -91,7 +114,7 @@ function formatTables(text: any) {
     //Change all the 'block' lines in our document using correct distance between words
     blocks.forEach(block => {
         let change = block.data
-            .map((d, i) => ` ${d}${' '.repeat(maxes[block.block][i] - d.length)} `)
+            .map((d, i) => ` ${d}${' '.repeat(maxes[block.block][i] - charCount(d))} `)
             .join('|');
         change = `|${change}|`;
         textArr[block.line] = textArr[block.line].replace(/\|.*/, change);
