@@ -1,5 +1,5 @@
 import { escapeRegExp } from './util';
-
+declare function escape(s: string): string;
 interface FormatConf {
     text: string,
     type: string,
@@ -91,7 +91,7 @@ function formatTables(text: any) {
                 res.push({
                     line: i,
                     block: blockNum,
-                    data: l.split(/\s*\|\s*/).filter((v: any, i: any, arr: any) => (i > 0) && (i < (arr.length - 1)))
+                    data: l.split(/\s*\|\s*/).filter((v: any, i: any, arr: any) => (v) && (i > 0) && (i < (arr.length - 1)))
                 });
                 if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
                     blockNum++;
