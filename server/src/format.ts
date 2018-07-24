@@ -79,6 +79,10 @@ function charCount(str: string) {
     return len;
 }
 
+function filterExampleTable(v: any, i: any, arr: any) {
+    v;
+    return (i > 0) && (i < (arr.length - 1))
+}
 
 function formatTables(text: any) {
     let blockNum = 0;
@@ -91,7 +95,7 @@ function formatTables(text: any) {
                 res.push({
                     line: i,
                     block: blockNum,
-                    data: l.split(/\s*\|\s*/).filter((v: any, i: any, arr: any) => (v) && (i > 0) && (i < (arr.length - 1)))
+                    data: l.split(/\s*\|\s*/).filter(filterExampleTable)
                 });
                 if (i < arr.length - 1 && !~arr[i + 1].search(/^\s*\|/)) {
                     blockNum++;
